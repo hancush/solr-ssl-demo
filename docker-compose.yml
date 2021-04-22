@@ -1,0 +1,30 @@
+version: '2.4'
+
+services:
+  solr:
+    image: solr:6.6
+    container_name: secure-solr
+    volumes:
+      - ./ssl:/ssl
+      - ./scripts/wait-for-solr.sh:/opt/docker-solr/scripts/wait-for-solr.sh
+      - secure-solr-data:/opt/solr/server/solr
+    command: sh -c 'solr-create -c ${SOLR_CORE}'
+    ports:
+      - 8984:8984
+    environment:
+      - SOLR_LOG_LEVEL=INFO
+      - SOLR_CORE=${SOLR_CORE}
+      - SOLR_SSL_ENABLED=true
+      - SOLR_SSL_KEY_STORE=/ssl/${SOLR_CORE}.keystore.jks
+      - SOLR_SSL_KEY_STORE_PASSWORD=${SSL_PASSWORD}
+      - SOLR_SSL_TRUST_STORE=/ssl/${SOLR_CORE}.keystore.jks
+      - SOLR_SSL_TRUST_STORE_PASSWORD=${SSL_PASSWORD}
+      - SOLR_SSL_NEED_CLIENT_AUTH=false
+      - SOLR_SSL_WANT_CLIENT_AUTH=false
+      - SOLR_SSL_CHECK_PEER_NAME=true
+      - SOLR_SSL_KEY_STORE_TYPE=JKS
+      - SOLR_SSL_TRUST_STORE_TYPE=JKS
+      - SOLR_PORT=8984
+
+volumes:
+  secure-solr-data:
